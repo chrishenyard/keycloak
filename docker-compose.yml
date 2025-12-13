@@ -1,0 +1,48 @@
+services:
+  keycloak.sqlserver:
+    image: mcr.microsoft.com/mssql/server@sha256:db9a8fe3098b7e8bbde41106bdc7caee942e97124e5fdb71b872ca208de3092d
+    container_name: keycloak.sqlserver
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD}
+    env_file:
+      - ./.env
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -U sa -P \"${MSSQL_SA_PASSWORD}\" -C -Q 'SELECT 1' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    ports:
+      - "1438:1433"
+    networks:
+      - keycloak_network
+    volumes:
+      - keycloak_mssql_data:/var/opt/mssql
+
+  keycloak:
+    image: quay.io/keycloak/keycloak@sha256:9409c59bdfb65dbffa20b11e6f18b8abb9281d480c7ca402f51ed3d5977e6007
+    container_name: keycloak
+    command: ["start-dev"]
+    environment:
+      KC_DB: mssql
+      KC_DB_URL: jdbc:sqlserver://keycloak.sqlserver:1433;databaseName=keycloakdb;encrypt=false;trustServerCertificate=true
+      KC_DB_USERNAME: sa
+      KC_DB_PASSWORD: "${MSSQL_SA_PASSWORD}"
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      KC_PROXY: edge
+    ports:
+      - "8080:8080"
+    depends_on:
+      keycloak.sqlserver:
+        condition: service_healthy
+    networks:
+      - keycloak_network
+
+networks:
+  keycloak_network:
+    driver: bridge
+
+volumes:
+  keycloak_mssql_data:
