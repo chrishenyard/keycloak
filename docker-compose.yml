@@ -25,6 +25,7 @@ services:
     container_name: keycloak
     command: ["start-dev"]
     environment:
+      KC_HEALTH_ENABLED: true
       KC_DB: mssql
       KC_DB_URL: jdbc:sqlserver://keycloak.sqlserver:1433;databaseName=keycloakdb;encrypt=false;trustServerCertificate=true
       KC_DB_USERNAME: sa
