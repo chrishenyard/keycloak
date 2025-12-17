@@ -48,7 +48,7 @@ services:
     container_name: mailpit
     environment:
       - MP_DATABASE=/data/mailpit.db
-      - MP_UI_AUTH="admin:admin"
+      - MP_UI_AUTH=${MP_UI_AUTH}
       - TZ=America/Phoenix
     ports:
       - "8025:8025"
