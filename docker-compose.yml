@@ -38,6 +38,23 @@ services:
     depends_on:
       keycloak.sqlserver:
         condition: service_healthy
+      mailpit:
+        condition: service_started
+    networks:
+      - keycloak_network
+
+  mailpit:
+    image: axllent/mailpit@sha256:c076638db1e15662150be4fb62b8a6e96ef6ba5bde90c838a0239225854830f7
+    container_name: mailpit
+    environment:
+      - MP_DATABASE=/data/mailpit.db
+      - MP_UI_AUTH="admin:admin"
+      - TZ=America/Phoenix
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+    volumes:
+      - mailpit_data:/data
     networks:
       - keycloak_network
 
@@ -47,3 +64,5 @@ networks:
 
 volumes:
   keycloak_mssql_data:
+  mailpit_data:
+
