@@ -1,6 +1,6 @@
 services:
   keycloak.postgres:
-    image: postgres@sha256:f9c7b25fc2322844c270e7e07961fac8298d0cf100d67c50a7954592d3c9168b
+    image: postgres:17
     container_name: keycloak.postgres
     environment:
       POSTGRES_DB: keycloakdb
@@ -20,7 +20,7 @@ services:
       - keycloak_postgres_data:/var/lib/postgresql/data
 
   keycloak:
-    image: quay.io/keycloak/keycloak@sha256:9409c59bdfb65dbffa20b11e6f18b8abb9281d480c7ca402f51ed3d5977e6007
+    image: quay.io/keycloak/keycloak:latest
     container_name: keycloak
     command: ["start-dev"]
     environment:
@@ -57,6 +57,20 @@ services:
     networks:
       - keycloak_network
 
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: user@example.com
+      PGADMIN_DEFAULT_PASSWORD: pgadmin
+    ports:
+      - "5050:80"
+    networks:
+      - keycloak_network
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+
 networks:
   keycloak_network:
     driver: bridge
@@ -64,4 +78,4 @@ networks:
 volumes:
   keycloak_postgres_data:
   mailpit_data:
-
+  pgadmin_data:
